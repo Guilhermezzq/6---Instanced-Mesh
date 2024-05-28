@@ -1,0 +1,64 @@
+
+Instanced Mesh/Mala de instância: usada para criar muitas malhas com a mesma geometria e material ms com diferentes transformações mundias , pode ter diferentes posições, rotações ou escala
+
+<instancedMesh args={[null,null]} > // Pode-se passar a geometria e o material no array mas vou preferir adiciona uma geometria de caixa e material padrão então adiciono nulo 
+	<boxGeometry />
+        <meshStandardMaterial color="#ffe181"/>
+
+      </instancedMesh>
+
+Criar uma variável separada para número de malhas que irei criar e depois inserir no array da instacia de malhas   <instancedMesh args={[null, null, count]} >
+
+const count = 10;
+useMemo é usado para criar e memorizar as transformações dos cubos (positions, rotations, e scales). O objetivo é garantir que esse cálculo só ocorra uma vez, quando o componente é montado pela primeira vez, e não em todas as renderizações subsequentes.
+
+  const cubesTransformations = useMemo(() => {
+    const cubesPositions = []
+    const cubesRotations = []
+    const cubeScales = []
+Inicialização dos Arrays:
+
+cubesPositions: Um array para armazenar as posições dos cubos.
+cubesRotations: Um array para armazenar as rotações dos cubos.
+cubeScales: Um array para armazenar as escalas dos cubos.
+Esses arrays são preenchidos dentro de um loop que itera count vezes (no seu caso, 10).
+
+    for(let i = 0; i < count; i++) {
+      cubesPositions.push([0, 0, 0]);
+      cubesRotations.push([0, 0, 0]);
+      cubeScales.push([1, 1, 1]);
+
+            depois 
+
+      cubesPositions.push([
+        (Math.random() * - 0.5) * 5,
+         Math.random() * 20,
+        (Math.random() * - 0.5) * 5,
+      ]);
+      cubesRotations.push([0, 0, 0]); // (sem rotação)
+      cubeScales.push([0.5, 0.5, 0.5]);// tornando os cubos metade do seu tamanho original em todas as dimensões
+    }
+Durante cada iteração do loop, valores padrão são empurrados para cada um dos arrays: posição [0, 0, 0], rotação [0, 0, 0], e escala [1, 1, 1].
+  
+
+    return {
+      positions: cubesPositions,
+      rotations: cubesRotations,
+      scales: cubeScales,
+      Retorno do Objeto Memorável:
+    }
+  }, [])A lista de dependências está vazia ([]), o que significa que o cálculo dentro de useMemo só será executado uma vez, quando o componente for montado pela primeira vez. 
+
+
+ <InstancedRigidBodies  // Envolvendo a malha da instância pelos corpos rígidos da instância.
+      positions={cubesTransformations.positions} //Fornecendo 
+      rotations={cubesTransformations.rotations}
+      scales={cubesTransformations.scales
+      } >
+        <instancedMesh args={[null, null, count]} >
+          <boxGeometry />
+          <meshStandardMaterial color="#ffe181"/>
+        </instancedMesh>
+ </InstancedRigidBodies>
+
+
